@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import Radium from 'radium'
 import classes from './Person.css'
+import withClass from '../../../hoc/withClass'
+import { AuthContext } from '../../../containers/App'
+
 // class Person extends Component {
 
 //     construction(name, age) {
@@ -15,45 +18,41 @@ class Person extends Component {
     constructor(props) {
         super(props);
         console.log('[Person.js] Inside Constructor', props)
+        this.inputElement = React.createRef();
       }
     
     // componentWillMount() {
     //     console.log('[Person.js] Inside ComponentWillMount()')
     // }
 
-    // componentDidMount() {
-    //     console.log('[Person.js] Inside ComponentDidMount()')
-    // }
 
-    componentWillReceiveProps(nextProps) {
-        console.log('[UPDATE Person.js] Inside componentWillReceiveProps()', nextProps)
+
+    componentDidMount() {
+        console.log('[Person.js] Inside ComponentDidMount()')
+        if (this.props.position === 0) {
+            this.inputElement.current.focus()
+        }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        console.log('[UPDATE Person.js] Inside shouldComponentUpdate()', nextProps, nextState)
-        return true
-    }
-
-    componentWillUpdate(nextProps, nextState) {
-        console.log('[UPDATE Person.js] Inside componentWillUpdate()', nextProps, nextState)
-    }
-
-    componentDidUpdate(nextProps, nextState) {
-        console.log('[UPDATE Person.js] Inside componentDidUpdate()', nextProps, nextState)
-    }
+    focus() {
+        this.inputElement.current.focus();
+    }    
 
     render () {
         console.log('[Person.js] Inside render()')
         return (
-            <div className={classes.Person}>
+            <>
+                <AuthContext.Consumer>
+                    {auth => auth ? <p>I'm authenticated</p> : null}
+                </AuthContext.Consumer>
+                
                 <p onClick={this.props.click}>I'm a {this.props.name} and I am {this.props.age} !</p>
                 <p>{this.props.children}</p>
-                <input type="text" onChange={this.props.changed} value= {this.props.name}/>
-            </div>
-
+                <input ref={this.inputElement} type="text" onChange={this.props.changed} value= {this.props.name}/>
+            </>
         )
     } 
 } 
 
 
-export default Radium(Person);
+export default withClass(Person, classes.Person);

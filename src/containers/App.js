@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types'
 import Persons from '../components/Persons/Persons'
 import Radium, { StyleRoot } from 'radium'
 import classes from './App.css';
 import Cockpit from '../components/Cockpit/Cockpit'
+import withClass from '../hoc/withClass'
+import Person from '../components/Persons/Person/Person';
+
+export const AuthContext = React.createContext(false)
 
 class App extends Component {
   
@@ -15,7 +20,9 @@ class App extends Component {
         {id:'awgwh', name: 'Manu', age: 29 }, 
         {id:'wagea', name: 'Stephanie', age: 26 } 
       ], 
-      showPersons:false
+      showPersons:false,
+      toggleClicked: 0,
+      authenticated: false
     }
   }
 
@@ -60,9 +67,17 @@ class App extends Component {
 
   togglePersonsHandler = () => {
     const doesShow = this.state.showPersons;
-    this.setState({showPersons: !doesShow})
+    this.setState( (prevState, props) =>  {
+      return {
+        showPersons: !doesShow, 
+        toggleClicked: prevState.toggleClicked +1
+      } 
+    })
   }
 
+  loginHandler = () => {
+    this.setState({ authenticated:true })
+  } 
 
   render() {
     console.log('[App.js] Inside render()')
@@ -72,26 +87,35 @@ class App extends Component {
     if (this.state.showPersons) {
 
       persons = (
-          <Persons persons={this.state.persons} 
+          <Persons 
+          persons={this.state.persons} 
           clicked={this.deletePersonHandler}
-          changed={this.nameChangedHandler}/>
+          changed={this.nameChangedHandler}
+          />
       );
     }
 
     return (
-      <StyleRoot>
-        <div className={classes.App}>
+        <>
           <Cockpit 
           appTitle={this.props.title}
           showPersons={this.state.showPersons}
           persons={this.state.persons}
+          login={this.loginHandler}
           clicked={this.togglePersonsHandler}/>
-          {persons}
-        </div>
-      </StyleRoot>
+          <AuthContext.Provider value={this.state.authenticated}>{persons}</AuthContext.Provider>          
+        </>
+
     );
     // return React.createElement('div', {className:'good'}, React.createElement('h1', null,`Hi, I'm a React App!!!`))
   }
 }
 
-export default Radium(App);
+Person.PropTypes = {
+  click: PropTypes.func, 
+  name: PropTypes.string, 
+  age: PropTypes.number,
+  changed: PropTypes.func  
+}
+
+export default withClass(App, classes.App);
